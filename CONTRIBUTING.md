@@ -17,6 +17,9 @@ We appreciate being notified of problems with the existing CausalPy code. We pre
 
 Please verify that your issue is not being currently addressed by other issues or pull requests by using the GitHub search tool to look for key words in the project issue tracker.
 
+## Use of agents
+PR's with agent-generated code are fine. But don't spam us with code you don't understand. See [AGENTS.md](./AGENTS.md) for how we use LLMs in this repo.
+
 ## Contributing code via pull requests
 
 While issue reporting is valuable, we strongly encourage users who are inclined to do so to submit patches for new or existing issues via pull requests. This is particularly the case for simple fixes, such as typos or tweaks to documentation, which do not require a heavy investment of time and attention.
@@ -47,10 +50,10 @@ For more instructions see the [Pull request checklist](#pull-request-checklist)
 
    Always use a feature branch. It's good practice to never routinely work on the `main` branch of any repository.
 
-1. Create a new environment using Python >=3.8, for example 3.11
+1. Create the environment from the `environment.yml` file.
 
     ```bash
-    conda create --name CausalPy python=3.11
+    mamba env create -f environment.yml
     ```
 
     Activate the environment.
@@ -59,19 +62,20 @@ For more instructions see the [Pull request checklist](#pull-request-checklist)
     conda activate CausalPy
     ```
 
-    Install the package (in editable mode) and its development dependencies:
+    Install the package (in editable mode) and its development dependencies. The `--no-deps` flag is used to avoid installing the dependencies of `CausalPy` as they are already installed when installing the development dependencies. This can end up interfering with the conda-only install of pymc.
 
     ```bash
-    pip install -e .
+    pip install --no-deps -e .
     ```
 
 	Install development dependencies
 
-	```
+	```bash
 	pip install 'causalpy[dev]'
 	pip install 'causalpy[docs]'
 	pip install 'causalpy[test]'
 	pip install 'causalpy[lint]'
+	pip install 'pylint'
 	```
 
 	It may also be necessary to [install](https://pandoc.org/installing.html) `pandoc`. On a mac, run `brew install pandoc`.
@@ -121,6 +125,20 @@ We recommend that your contribution complies with the following guidelines befor
 
 - All public methods must have informative docstrings with sample usage when appropriate.
 
+- Example usage in docstrings is tested via doctest, which can be run via
+
+    ```bash
+    make doctest
+    ```
+
+- Doctest can also be run directly via pytest, which can be helpful to run only specific tests during development. The following commands run all doctests, only doctests in the pymc_models module, and only the doctests for the `PyMCModel` class in pymc_models:
+
+    ```bash
+    pytest --doctest-modules causalpy/
+    pytest --doctest-modules causalpy/pymc_models.py
+    pytest --doctest-modules causalpy/pmyc_models.py::causalpy.pymc_models.PyMCModel
+    ```
+
 - To indicate a work in progress please mark the PR as `draft`. Drafts may be useful to (1) indicate you are working on something to avoid duplicated work, (2) request broad review of functionality or API, or (3) seek collaborators.
 
 - All other tests pass when everything is rebuilt from scratch. Tests can be run with:
@@ -152,20 +170,19 @@ We recommend that your contribution complies with the following guidelines befor
 
 ## Building the documentation locally
 
-A local build of the docs is achieved by:
+To build the documentation, run from the **project root**:
 
 ```bash
-cd docs
 make html
 ```
-
-Sometimes not all changes are recognised. In that case run this (again from within the `docs` folder):
-
+To clean and rebuild the documentation from scratch:
 ```bash
-make clean && make html
+make cleandocs
+make html
 ```
+ Docs are built in docs/_build/html, but these docs are not committed to the GitHub repository due to .gitignore.
 
-Docs are built in `docs/_build`, but these docs are _not_ committed to the GitHub repository due to `.gitignore`.
+ 📌 Note: The previous docs/Makefile has been removed. Please use only the root-level Makefile for documentation commands
 
 ## Overview of code structure
 
